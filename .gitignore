@@ -5,3 +5,5 @@ __pycache__/
 venv/
 .pytest_cache/
 alembic/versions/*.pyc
+.env.prod
+.env.dev

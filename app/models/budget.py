@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Numeric, Date, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from app.core.database import Base
+from app.core.base import Base
 import uuid
 
 class Budget(Base):

@@ -4,13 +4,13 @@ from app.schemas.transaction import TransactionType
 
 class CategoryCreate(BaseModel):
     name: str
-    type: TransactionType  # ← тип: доходная это категория или расходная
+    type: TransactionType 
 
 class CategoryResponse(BaseModel):
     id: UUID
     user_id: UUID
     name: str
-    type: TransactionType  # ← показываем клиенту тип категории
+    type: TransactionType 
     
     class Config:
         from_attributes = True

@@ -12,7 +12,7 @@ class TransactionBase(BaseModel):
     wallet_id: UUID
     category_id: UUID
     amount: Decimal = Field(..., gt = 0, decimal_places=2)
-    type: TransactionnType
+    type: TransactionType
     note: str | None = Field(None, max_length=500)
     transaction_date: date = Field(default_factory=date.today)
 
@@ -21,7 +21,7 @@ class TransactionUpdate(BaseModel):
     wallet_id: UUID | None = None
     category_id: UUID | None = None
     amount: Decimal | None =  Field(None, gt = 0, decimal_places=2)
-    type: TransactionnType | None = None
+    type: TransactionType | None = None
     note: str | None = None
     transaction_date: date | None = None
 
