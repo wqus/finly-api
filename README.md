@@ -1,5 +1,5 @@
 <img width="1254" height="1254" alt="ChatGPT Image 3 мая 2026 г , 20_20_20" src="https://github.com/user-attachments/assets/e26e281a-3835-4cd0-9428-ee5849799cde" />
-## Finly — Personal Finance REST API (в разработке) ##
+Finly — Personal Finance REST API (в разработке)
 
 Асинхронный бэкенд для управления личными финансами с чистой архитектурой.
 
