@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
 from jose import jwt, JWTError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 from fastapi import HTTPException
 
@@ -17,6 +17,8 @@ class AuthService:
 
     def hash_password(self, password: str) -> str:
         """Хеширует пароль"""
+        print(f"Длина пароля: {len(password)}")
+        print(f"Тип: {type(password)}")
         return pwd_context.hash(password)
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
@@ -25,7 +27,7 @@ class AuthService:
       
     def create_access_token(self, user_id) -> str:
         """Создаёт access_token (живёт 30 минут)"""
-        expire = datetime.now() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         payload = {
             'sub': str(user_id),
             'exp': expire,
@@ -36,7 +38,7 @@ class AuthService:
     
     def create_refresh_token(self, user_id) -> str:
         """Создаёт refresh_token (живёт 7 дней)"""
-        expire = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         payload = {
             "sub": str(user_id),
             "exp": expire,
@@ -50,8 +52,9 @@ class AuthService:
         if existing:
             raise HTTPException(409, "Email already exists")
         hashed = self.hash_password(password)
+        print(hashed)
         user = await self.user_repo.create(db, email, hashed)
-        access_token = await self.create_access_token(user.id)
+        access_token = self.create_access_token(user.id)
         refresh_token = self.create_refresh_token(user.id)
 
         await self.user_repo.update_refresh_token(db, user.id, refresh_token)
@@ -85,10 +88,10 @@ class AuthService:
         """Обновление access_token по refresh_token"""
     
         try:
-            payload = jwt.encode(
+            payload = jwt.decode(
                 refresh_token,
                 settings.SECRET_KEY,
-                algorithm=[settings.ALGORITHM]
+                algorithms=[settings.ALGORITHM]
             )
 
             user_id = payload.get("sub")
@@ -103,14 +106,14 @@ class AuthService:
             raise HTTPException(401, "Invalid token")
 
         user = await self.user_repo.get_by_id(db, user_id)  
-        if not user or user.refresh_token != self.refresh_token:
+        if not user or user.refresh_token != refresh_token:
             raise HTTPException(401, "Invalid refresh token")
 
         new_access_token = self.create_access_token(user_id)
 
         return {
             "access_token": new_access_token,
-            "refresh_token": self.refresh_token
+            "refresh_token": refresh_token
         }
     async def logout(self, db, user_id) -> None:
-        self.user_repo.update_refresh_token(db, user_id, None)
+        await self.user_repo.update_refresh_token(db, user_id, None)

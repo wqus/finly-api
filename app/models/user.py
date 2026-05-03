@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, String, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID
 from app.core.base import Base
 import uuid
@@ -11,4 +11,4 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False, index = True)
     hashed_password = Column(String(255), nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable = False)
-    refresh_token = Column(String(100), nullable = True)
+    refresh_token = Column(Text, nullable = True)

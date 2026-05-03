@@ -26,7 +26,7 @@ async def login(
 ):
     """Вход в систему"""
     auth_service = AuthService()
-    tokens = await auth_service.login(email=data.email, password=data.password)
+    tokens = await auth_service.login(db = db, email=data.email, password=data.password)
     return tokens
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -36,7 +36,7 @@ async def refresh(
 ):
     """Обновление access_token по refresh_token"""
     auth_service = AuthService()
-    tokens = await auth_service.refresh_token(db, data.refresh_token)
+    tokens = await auth_service.refresh_token(db = db, refresh_token = data.refresh_token)
     return tokens
 
 
@@ -47,5 +47,5 @@ async def logout(
 ):
     """Выход из системы (удаляет refresh_token)"""
     auth_service = AuthService()
-    await auth_service.logout(db, current_user.id)
+    await auth_service.logout(db = db, user_id = current_user.id)
     return None
