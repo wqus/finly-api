@@ -4,7 +4,7 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 from fastapi import HTTPException
-
+from app.models.user import User
 from app.repositories.UserReposirory import UserRepository
 from app.core.config import settings
 
@@ -83,7 +83,21 @@ class AuthService:
             "access_token": access_token,
             "refresh_token": refresh_token
         }
+
+
+    async def update_user(self, current_user: User, db: AsyncSession, data: dict) -> User:
+        if data.email:
+            existing = await self.user_repo.get_by_email(db, data.email)
+            if existing and existing.id != current_user.id:
+                raise HTTPException(409, 'Email already exists') 
+            current_user.email = data.email
     
+        if data.password:
+            current_user.hashed_password = self.hash_password(data.password)
+
+        await self.user_repo.update(db, current_user)
+        return current_user
+        
     async def refresh_token(self, db, refresh_token: str) -> dict:
         """Обновление access_token по refresh_token"""
     
@@ -117,3 +131,7 @@ class AuthService:
         }
     async def logout(self, db, user_id) -> None:
         await self.user_repo.update_refresh_token(db, user_id, None)
+        
+    async def delete_user(self, db: AsyncSession, user_id: UUID) -> bool:
+        return await self.user_repo.delete(db , user_id)
+        

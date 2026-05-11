@@ -7,3 +7,4 @@ venv/
 alembic/versions/*.pyc
 .env.prod
 .env.dev
+.vscode

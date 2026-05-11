@@ -1,6 +1,6 @@
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import User
+from app.models.user import User
 from sqlalchemy import select
 
 class UserRepository:
@@ -33,7 +33,7 @@ class UserRepository:
     
     async def delete(self, db: AsyncSession, user_id: UUID) -> bool:
         user = await db.get(User, user_id)
-        if user:
+        if user and user.id == user_id:
            await db.delete(user)
            await db.commit()
            return True
